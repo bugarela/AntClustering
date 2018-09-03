@@ -13,7 +13,7 @@ colors = [RED, GREEN, BLUE, PINK]
 
 N = 50
 n_dead = 200
-n_ants = 200
+n_ants = 150
 life = 200
 alpha = 40
 
@@ -22,7 +22,7 @@ WIDTH = 600 / N - MARGIN
 HEIGHT = 600 / N - MARGIN
 WINDOW_SIZE = [600, 600]
 
-vision_range = 2
+vision_range = 1
 dead_ants = []
 alive_ants = []
 items = []
@@ -31,12 +31,12 @@ class Ant():
     def __init__(self, size):
         self.x = int(random() * size)
         self.y = int(random() * size)
-        self.carrying = False
+        self.carrying = {}
         self.life = life
         alive_ants[self.x][self.y] += 1
 
     def move(self, size):
-        if self.life == 0 and not self.carrying:
+        if self.life <= 0 and self.carrying == {}:
             alive_ants[self.x][self.y] -= 1
         else:
             self.x = max(min(self.x + randint(-1,1), size-1), 0)
@@ -48,34 +48,51 @@ class Ant():
             ymax = self.y+vision_range+1
 
             foi = 0
-            if dead_ants[self.x][self.y] != {}:
+            field_size = (1 + 2*vision_range)**2
+
+
+            if self.carrying == {} and dead_ants[self.x][self.y] != {}:
+
                 for row in dead_ants[xmin : xmax]:
                     for item in row[ymin : ymax]:
-                        if item != self and item != {}:
-                            if (item['Class'] == dead_ants[self.x][self.y]['Class']):
-                                foi += 1
-                            #foi += 1 - dissimilarity(dead_ants[self.x][self.y], item) / alpha
+                        if item != self:
+                            foi += 1 - dissimilarity(dead_ants[self.x][self.y], item) / float(alpha)
 
-            field_size = (1 + 2*vision_range)**2 - 1
-            if not self.carrying and dead_ants[self.x][self.y] == 1:
-                #p = (0.1 / (0.1 + foi))**2
-                p = 1 - (foi + 1) / field_size
-                if random() > p:
-                    self.carrying = True
+
+                foi = foi / float(field_size)
+
+                if foi == 0:
+                    p = 1
+                else:
+                    p = (2 / (2 + foi))**2
+
+                print(p)
+                if random() < p:
+                    self.carrying = dead_ants[self.x][self.y]
                     dead_ants[self.x][self.y] = {}
                     self.life = life
                 else:
                     self.life-=1
-            if self.carrying and dead_ants[self.x][self.y] == {}:
-                p = (n_local + 1) / field_size
-                if random() > p:
-                    self.carrying = False
-                    dead_ants[self.x][self.y] = self
+
+            elif self.carrying != {} and dead_ants[self.x][self.y] == {}:
+
+                for row in dead_ants[xmin : xmax]:
+                    for item in row[ymin : ymax]:
+                        if item != self and item != {}:
+                                foi += 1 - dissimilarity(self.carrying, item) / alpha
+
+                foi = foi / float(field_size)
+                p = 2.0*foi
+                if random() < p:
+                    dead_ants[self.x][self.y] = self.carrying
+                    self.carrying = {}
                     self.life = life
                 else:
                     self.life-=1
+
             else:
                 self.life-=1
+
 
 def generate_grid(size, fill):
     return [[fill for _ in range(size)] for _ in range(size)]
@@ -91,6 +108,8 @@ def spreads_itens(dead_ants, items):
     return dead_ants
 
 def dissimilarity(a, b):
+    if b == {}:
+        return (0.75 * alpha)
     return np.sqrt((a['X']-b['X'])**2 + (a['Y']-b['Y'])**2)
 
 
@@ -125,7 +144,7 @@ while(not done):
                               WIDTH,
                               HEIGHT])
 
-    clock.tick(60)
+    clock.tick(120)
     for ant in ants:
         alive_ants[ant.x][ant.y] -= 1
         ant.move(N)
