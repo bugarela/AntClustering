@@ -52,21 +52,23 @@ class Ant():
                 for row in dead_ants[xmin : xmax]:
                     for item in row[ymin : ymax]:
                         if item != self and item != {}:
-                            print(dead_ants[self.x][self.y], item)
-                            foi += 1 - dissimilarity(dead_ants[self.x][self.y], item) / alpha
+                            if (item['Class'] == dead_ants[self.x][self.y]['Class']):
+                                foi += 1
+                            #foi += 1 - dissimilarity(dead_ants[self.x][self.y], item) / alpha
 
             field_size = (1 + 2*vision_range)**2 - 1
             if not self.carrying and dead_ants[self.x][self.y] == 1:
-                p = (0.1 / (0.1 + foi))**2
-                if random() < p:
+                #p = (0.1 / (0.1 + foi))**2
+                p = 1 - (foi + 1) / field_size
+                if random() > p:
                     self.carrying = True
                     dead_ants[self.x][self.y] = {}
                     self.life = life
                 else:
                     self.life-=1
             if self.carrying and dead_ants[self.x][self.y] == {}:
-                p = 2*foi
-                if random() < p:
+                p = (n_local + 1) / field_size
+                if random() > p:
                     self.carrying = False
                     dead_ants[self.x][self.y] = self
                     self.life = life
