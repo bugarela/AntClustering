@@ -9,20 +9,37 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 PINK = (255, 000, 255)
-colors = [RED, GREEN, BLUE, PINK]
+
+values = [0, 255, 128]
+colors = []
+for r in values:
+    for g in values:
+        for b in values:
+            colors.append((r, g, b))
+
+colors = colors[1:-2]
+
+'''
+Primeiro grupo:
+N = 30
+n_ants = 80
+alpha = 35
+sigma = 2
+life = 200
+'''
 
 N = 50
-n_ants = 300
+n_ants = 150
+alpha = 1.3
+sigma = 2
 life = 200
-alpha = 80
-sigma = 7
 
 MARGIN = 2
 WIDTH = 600 / N - MARGIN
 HEIGHT = 600 / N - MARGIN
 WINDOW_SIZE = [600, 600]
 
-vision_range = 2
+vision_range = 1
 dead_ants = []
 alive_ants = []
 items = []
@@ -52,18 +69,15 @@ class Ant():
 
 
             if self.carrying == {} and dead_ants[self.x][self.y] != {}:
-                count = 0
                 for row in dead_ants[xmin : xmax]:
                     for item in row[ymin : ymax]:
                         if item != dead_ants[self.x][self.y] and item != {}:
-                            count += 1
                             foi += max(1 - dissimilarity(dead_ants[self.x][self.y], item) / float(alpha), 0)
 
-                count = max(count,1)
                 foi = foi / float(sigma**2)
 
 
-                if foi <= 0:
+                if foi <= 1:
                     p = 1
                 else:
                     p = 1 / float(foi**2)
@@ -79,14 +93,11 @@ class Ant():
                     self.life-=1
 
             elif self.carrying != {} and dead_ants[self.x][self.y] == {}:
-                count = 0
                 for row in dead_ants[xmin : xmax]:
                     for item in row[ymin : ymax]:
                         if item != dead_ants[self.x][self.y] and item != {}:
                                 foi += max(1 - dissimilarity(self.carrying, item) / float(alpha), 0)
-                                count += 1
 
-                count = max(count,1)
                 foi = foi / float(sigma**2)
 
                 if foi >= 1:
@@ -122,11 +133,11 @@ def spreads_itens(dead_ants, items):
     return dead_ants
 
 def dissimilarity(a, b):
-    #print(np.sqrt((a['X']-b['X'])**2 + (a['Y']-b['Y'])**2))
-    return min(np.sqrt((a['X']-b['X'])**2 + (a['Y']-b['Y'])**2), alpha)
+    return np.sqrt((a['X']-b['X'])**2 + (a['Y']-b['Y'])**2)
 
 
-df = pd.read_csv('input1.csv', names=['X', 'Y', 'Class'])
+df = pd.read_csv('input2.tsv', sep='\t', names=['X', 'Y', 'Class'])
+print(df.head())
 items = df.to_dict('index').values()
 
 alive_ants = generate_grid(N, 0)
@@ -148,8 +159,8 @@ while(not done):
             color = BLACK
             if dead_ants[row][column] != {}:
                 color = colors[dead_ants[row][column]['Class'] - 1]
-            #if alive_ants[row][column] > 0:
-                #color = WHITE
+            if alive_ants[row][column] > 0:
+                color = WHITE
             pygame.draw.rect(screen,
                              color,
                              [(MARGIN + WIDTH) * column + MARGIN,
