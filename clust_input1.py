@@ -13,26 +13,17 @@ PINK = (255, 000, 255)
 values = [0, 255, 128]
 colors = []
 for r in values:
-    for g in values:
-        for b in values:
+    for g in values[:2]:
+        for b in values[:2]:
             colors.append((r, g, b))
 
-'''
-Primeiro grupo:
 N = 30
-n_ants = 80
-alpha = 35 # 7
+n_ants = 70
+alpha = 9 # 7
 sigma = 2 #2
-life = 200
-'''
+life = 100
 
-N = 50
-n_ants = 150
-alpha = 1.5 #1.3
-sigma = 2 #2
-life = 50
 moves = 1000
-
 MARGIN = 2
 WIDTH = 600 / N - MARGIN
 HEIGHT = 600 / N - MARGIN
@@ -126,7 +117,7 @@ def spreads_itens(dead_ants, items):
     return dead_ants
 
 
-df = pd.read_csv('input2.tsv', sep='\t', names=['X', 'Y', 'Class'])
+df = pd.read_csv('input1.csv', names=['X', 'Y', 'Class'])
 print(df.dtypes)
 items = df.to_dict('index').values()
 
