@@ -23,7 +23,7 @@ alpha = 9 # 7
 sigma = 2 #2
 life = 100
 
-moves = 1000
+moves = 100
 MARGIN = 2
 WIDTH = 600 / N - MARGIN
 HEIGHT = 600 / N - MARGIN

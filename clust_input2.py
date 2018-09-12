@@ -18,12 +18,12 @@ for r in values:
             colors.append((r, g, b))
 
 
-N = 40
+N = 60
 n_ants = 100
 alpha = 1.4
 sigma = 2
-life = 100
-moves = 10000
+life = 200
+moves = 100
 
 MARGIN = 2
 WIDTH = 600 / N - MARGIN
